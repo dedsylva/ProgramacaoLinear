@@ -9,7 +9,7 @@
 ## To do list
 
 * [x] Transformar em classe
-* [] Adicionar Método das duas Fases
+* [x] Adicionar Método das duas Fases
 * [] Adicionar Método Big M
 * [] Método para calcular as matrizes inversas
 
