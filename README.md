@@ -10,8 +10,8 @@
 
 * [x] Transformar em classe
 * [x] Adicionar Método das duas Fases
-* [] Adicionar Método Big M
-* [] Método para calcular as matrizes inversas
+* [x] Adicionar Método Big M
+* [] Adicionar Pontos Interiores
 
 
 ## Entrada

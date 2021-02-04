@@ -10,6 +10,31 @@ class DuasFases():
     def f(self,x, c_basica):
         return np.dot(c_basica.T, x)
 
+    def ImprimeSolucao(self,x_b, x_basica, x_n_basica, res):
+        item = [i+1 for i in range(len(self.c))]
+        j = 0
+        sol = []
+
+        while(j < len(self.c)):
+            for i in range(len(x_basica)):
+                if j == len(self.c):
+                    break
+                if x_basica[i] == item[j]:
+                    j +=1
+                    sol.append(x_b[i])
+
+
+            for i in range(len(x_n_basica)):
+                if j == len(self.c):
+                    break                
+
+                if x_n_basica[i] == item[j]:                   
+                    j +=1
+                    sol.append(0)
+              
+        print('Solução Otima: {}\n'.format(sol))
+        print('Valor Ótimo: {}\n'.format(res))
+
      
     def resolve(self): 
         ######### Fase 1 #########
@@ -34,21 +59,15 @@ class DuasFases():
         c_basica = np.array([c2[x_basica[i]-1] for i in range(x_basica.shape[0])])
         c_n_basica = np.array([c2[x_n_basica[i]-1] for i in range(x_n_basica.shape[0])])
 
-        contador = 1
+        sol_infinita = False
         while(pare == False):
-            print("{} ° iteracao".format(contador))
-            contador +=1 
+
 
             # Calculo da Solucao Basica
             x_b = np.linalg.solve(B,self.b)
             #funcao a max agr eh y1+y2+...+yn, n=b.shape[0]
             res = [c_basica[i]*x_b[i] for i in range(len(c_basica))]
             res = sum(res)
-            print('Solucao Basica')
-            print(x_b)
-            print('Valor da funcao')
-            print(res)
-            print('\n')
 
             #Vetor Multiplicador Simplex
             lamb = np.linalg.solve(B.T, c_basica)
@@ -72,7 +91,6 @@ class DuasFases():
 
                 if(i == c_n_basica.shape[0]-1 and aux == i+1):
                     pare = True
-                    print('Chegamos na Solucao Otima')
 
             #A variavel x_n_basica[indice_min] entra na base
             
@@ -91,16 +109,20 @@ class DuasFases():
             #Tamanho do passo
             for i in range(y.shape[0]):
                 #Verificando qual variável sai da base
-                if(x_b[i]/y[i] <valor_min and y[i]>0):
-                    valor_min = x_b[i]/y[i]
-                    indice_min = i
 
-                if(y[i] <= 0):
+                if y[i]>0:
+                    if x_b[i]/y[i] <valor_min:
+                        valor_min = x_b[i]/y[i]
+                        indice_min = i
+
+                else:
                     aux += 1
 
-                if(i == y.shape[0] and aux == i+1):
+
+                if(i == y.shape[0]-1 and aux == i+1):
                     sol_infinita = True
                     pare = True 
+
 
             #A variavel x_basica[indice_min] sai da base
             sai = indice_min
@@ -130,7 +152,6 @@ class DuasFases():
 
         if(base_factivel):
         ######### Fase 2 #########
-            print('####### Fase 2 #######')
         #Agora resolvemos o problema original com a base encontrada
             #Retiramos a informacao das variaveis y da matriz N
             N_aux = np.identity(A.shape[1]-x_basica.shape[0])
@@ -149,19 +170,12 @@ class DuasFases():
 
 
             pare = False
-            contador = 1
             while(pare == False):
-                print("{} ° iteracao".format(contador))
-                contador +=1 
+
 
                 # Calculo da Solucao Basica
                 x_b = np.linalg.solve(B,self.b)               
                 res = self.f(x_b, c_basica)
-                print('Solucao Basica')
-                print(x_b)
-                print('Valor da funcao')
-                print(res)
-                print('\n')
 
                 #Vetor Multiplicador Simplex
                 lamb = np.linalg.solve(B.T, c_basica)
@@ -185,7 +199,6 @@ class DuasFases():
 
                     if(i == c_n_basica.shape[0]-1 and aux == i+1):
                         pare = True
-                        print('Chegamos na Solucao Otima')
 
                 #A variavel x_n_basica[indice_min] entra na base
                 
@@ -229,14 +242,29 @@ class DuasFases():
                 c_basica = np.array([self.c[x_basica[i]-1] for i in range(x_basica.shape[0])])
                 c_n_basica = np.array([self.c[x_n_basica[i]-1] for i in range(x_n_basica.shape[0])])
 
+            if(sol_infinita):
+                print('O problema não tem solucao finita')
+            else:
+                self.ImprimeSolucao(x_b, x_basica, x_n_basica, res)
 
-
+'''
+Problema Infactível
 A = np.array(
     [[1, 1,-1,0],
     [-1, 1,0,-1]])
 
 b = np.array([2,1])
 c = np.array([-1,2,0,0])
+'''
+
+A = np.array(
+    [[0, 1, 1, 0],
+     [1, 1, 0, 1]]
+)
+
+b = np.array([3, 6])
+c = np.array([0, -1, 0, 0])
+
 
 df = DuasFases(A,b,c)
 df.resolve()
